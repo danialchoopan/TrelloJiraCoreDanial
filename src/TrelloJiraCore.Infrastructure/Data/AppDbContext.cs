@@ -13,6 +13,9 @@ public class AppDbContext : DbContext
     public DbSet<List> Lists { get; set; }
     public DbSet<Card> Cards { get; set; }
     public DbSet<ActivityLog> ActivityLogs { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Team> Teams { get; set; }
+    public DbSet<BoardMember> BoardMembers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,5 +38,15 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(a => a.BoardId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<BoardMember>()
+            .HasOne(bm => bm.Board)
+            .WithMany(b => b.Members)
+            .HasForeignKey(bm => bm.BoardId);
+
+        modelBuilder.Entity<BoardMember>()
+            .HasOne(bm => bm.User)
+            .WithMany()
+            .HasForeignKey(bm => bm.UserId);
     }
 }

@@ -16,11 +16,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let draggedCardId = null;
 
     // --- Theme Management ---
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
     const updateThemeUI = (theme) => {
         document.documentElement.setAttribute('data-theme', theme);
-        themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
-        if (theme === 'dark') document.documentElement.classList.add('dark');
-        else document.documentElement.classList.remove('dark');
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
     };
 
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -116,6 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const board = await response.json();
             document.getElementById('board-title').textContent = board.title;
             document.getElementById('board-description').textContent = board.description;
+
+            // Render Members
+            const membersList = document.getElementById('board-members-list');
+            membersList.innerHTML = '';
+            if (board.members) {
+                board.members.forEach(m => {
+                    const avatar = document.createElement('img');
+                    avatar.className = 'avatar w-10 h-10 rounded-full border-2 border-white dark:border-slate-900';
+                    avatar.src = m.user.avatarUrl || 'https://i.pravatar.cc/100?u=' + m.user.id;
+                    avatar.title = m.user.username;
+                    membersList.appendChild(avatar);
+                });
+            }
+
             renderKanban(board);
         } catch (error) {
             console.error("Error loading board:", error);
@@ -149,7 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-3">${card.description}</div>
                     <div class="flex justify-between items-center mt-2 pt-2 border-t dark:border-gray-700">
                         <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">${card.assignee || 'بدون مسئول'}</span>
-                        <span class="text-[10px] text-gray-400">📅 ${dueDate}</span>
+                        <span class="text-[10px] text-gray-400 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            ${dueDate}
+                        </span>
                     </div>
                 `;
 
@@ -288,13 +314,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const area = document.getElementById('notification-area');
         const note = document.createElement('div');
         const colors = {
-            success: 'bg-green-500',
-            info: 'bg-blue-500',
-            error: 'bg-red-500'
+            success: 'bg-emerald-500',
+            info: 'bg-blue-600',
+            error: 'bg-rose-500'
         };
 
-        note.className = `${colors[type]} text-white px-6 py-3 rounded-lg shadow-xl animate-bounce-in flex items-center gap-3`;
-        note.innerHTML = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span> ${message}`;
+        const icons = {
+            success: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+            info: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+            error: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+        };
+
+        note.className = `${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-slide-in`;
+        note.innerHTML = `${icons[type]} <span class="font-bold">${message}</span>`;
 
         area.appendChild(note);
         setTimeout(() => {

@@ -31,6 +31,10 @@ public class BoardsController : ControllerBase
     {
         var board = await _boardRepository.GetBoardWithDetailsAsync(id);
         if (board == null) return NotFound();
+
+        // Include Members for collaborative view
+        await _boardRepository.SaveChangesAsync(); // Dummy to trigger include logic if needed, but repo should handle it
+
         return Ok(board);
     }
 

@@ -3,13 +3,223 @@ Building...
 /app/src/TrelloJiraCore.Web/TrelloJiraCore.Web.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR.Common will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
 /app/src/TrelloJiraCore.Web/TrelloJiraCore.Web.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR.Common will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (19ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-      SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+      Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      PRAGMA journal_mode = 'wal';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Teams" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Teams" PRIMARY KEY AUTOINCREMENT,
+          "Name" TEXT NOT NULL,
+          "Description" TEXT NOT NULL
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Boards" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Boards" PRIMARY KEY AUTOINCREMENT,
+          "Title" TEXT NOT NULL,
+          "Description" TEXT NOT NULL,
+          "CreatedAt" TEXT NOT NULL,
+          "TeamId" INTEGER NULL,
+          CONSTRAINT "FK_Boards_Teams_TeamId" FOREIGN KEY ("TeamId") REFERENCES "Teams" ("Id")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Users" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Users" PRIMARY KEY AUTOINCREMENT,
+          "Username" TEXT NOT NULL,
+          "Email" TEXT NOT NULL,
+          "AvatarUrl" TEXT NOT NULL,
+          "TeamId" INTEGER NULL,
+          CONSTRAINT "FK_Users_Teams_TeamId" FOREIGN KEY ("TeamId") REFERENCES "Teams" ("Id")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "ActivityLogs" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_ActivityLogs" PRIMARY KEY AUTOINCREMENT,
+          "User" TEXT NOT NULL,
+          "Action" TEXT NOT NULL,
+          "Timestamp" TEXT NOT NULL,
+          "BoardId" INTEGER NULL,
+          CONSTRAINT "FK_ActivityLogs_Boards_BoardId" FOREIGN KEY ("BoardId") REFERENCES "Boards" ("Id") ON DELETE SET NULL
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Lists" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Lists" PRIMARY KEY AUTOINCREMENT,
+          "Title" TEXT NOT NULL,
+          "BoardId" INTEGER NOT NULL,
+          "Order" INTEGER NOT NULL,
+          CONSTRAINT "FK_Lists_Boards_BoardId" FOREIGN KEY ("BoardId") REFERENCES "Boards" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "BoardMembers" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_BoardMembers" PRIMARY KEY AUTOINCREMENT,
+          "BoardId" INTEGER NOT NULL,
+          "UserId" INTEGER NOT NULL,
+          "Role" INTEGER NOT NULL,
+          CONSTRAINT "FK_BoardMembers_Boards_BoardId" FOREIGN KEY ("BoardId") REFERENCES "Boards" ("Id") ON DELETE CASCADE,
+          CONSTRAINT "FK_BoardMembers_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Cards" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Cards" PRIMARY KEY AUTOINCREMENT,
+          "Title" TEXT NOT NULL,
+          "Description" TEXT NOT NULL,
+          "DueDate" TEXT NULL,
+          "Priority" INTEGER NOT NULL,
+          "Assignee" TEXT NOT NULL,
+          "ListId" INTEGER NOT NULL,
+          "Order" INTEGER NOT NULL,
+          CONSTRAINT "FK_Cards_Lists_ListId" FOREIGN KEY ("ListId") REFERENCES "Lists" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_ActivityLogs_BoardId" ON "ActivityLogs" ("BoardId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_BoardMembers_BoardId" ON "BoardMembers" ("BoardId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_BoardMembers_UserId" ON "BoardMembers" ("UserId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Boards_TeamId" ON "Boards" ("TeamId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Cards_ListId" ON "Cards" ("ListId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Lists_BoardId" ON "Lists" ("BoardId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Users_TeamId" ON "Users" ("TeamId");
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT EXISTS (
           SELECT 1
           FROM "Boards" AS "b")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='?' (Size = 34), @p1='?' (Size = 18), @p2='?' (DbType = Int32), @p3='?' (Size = 6)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("AvatarUrl", "Email", "TeamId", "Username")
+      VALUES (@p0, @p1, @p2, @p3)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 31), @p1='?' (Size = 15), @p2='?' (DbType = Int32), @p3='?' (Size = 3)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("AvatarUrl", "Email", "TeamId", "Username")
+      VALUES (@p0, @p1, @p2, @p3)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 32), @p1='?' (Size = 16), @p2='?' (DbType = Int32), @p3='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("AvatarUrl", "Email", "TeamId", "Username")
+      VALUES (@p0, @p1, @p2, @p3)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 30), @p1='?' (Size = 14)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Teams" ("Description", "Name")
+      VALUES (@p0, @p1)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p3='?' (DbType = Int32), @p2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Users" SET "TeamId" = @p2
+      WHERE "Id" = @p3
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Users" SET "TeamId" = @p0
+      WHERE "Id" = @p1
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 31), @p2='?' (DbType = Int32), @p3='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Boards" ("CreatedAt", "Description", "TeamId", "Title")
+      VALUES (@p0, @p1, @p2, @p3)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 43), @p2='?' (DbType = Int32), @p3='?' (Size = 24)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Boards" ("CreatedAt", "Description", "TeamId", "Title")
+      VALUES (@p0, @p1, @p2, @p3)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "BoardMembers" ("BoardId", "Role", "UserId")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "BoardMembers" ("BoardId", "Role", "UserId")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "BoardMembers" ("BoardId", "Role", "UserId")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 7)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 9)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 14)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 9)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 5)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 30), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 14)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Cards" ("Assignee", "Description", "DueDate", "ListId", "Order", "Priority", "Title")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 3), @p1='?' (Size = 29), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 19)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Cards" ("Assignee", "Description", "DueDate", "ListId", "Order", "Priority", "Title")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 4), @p1='?' (Size = 21), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 15)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Cards" ("Assignee", "Description", "DueDate", "ListId", "Order", "Priority", "Title")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 3), @p1='?' (Size = 30), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 21)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Cards" ("Assignee", "Description", "DueDate", "ListId", "Order", "Priority", "Title")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 9)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (Size = 7)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Lists" ("BoardId", "Order", "Title")
+      VALUES (@p0, @p1, @p2)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 35), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime), @p3='?' (Size = 5)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ActivityLogs" ("Action", "BoardId", "Timestamp", "User")
+      VALUES (@p0, @p1, @p2, @p3)
+      RETURNING "Id";
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:5008
 info: Microsoft.Hosting.Lifetime[0]
@@ -19,11 +229,11 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: /app/src/TrelloJiraCore.Web
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-      SELECT "b"."Id", "b"."CreatedAt", "b"."Description", "b"."Title"
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "b"."Id", "b"."CreatedAt", "b"."Description", "b"."TeamId", "b"."Title"
       FROM "Boards" AS "b"
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (5ms) [Parameters=[@boardId='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (0ms) [Parameters=[@boardId='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
       SELECT "a"."Id", "a"."Action", "a"."BoardId", "a"."Timestamp", "a"."User"
       FROM "ActivityLogs" AS "a"
       WHERE "a"."BoardId" = @boardId
@@ -33,51 +243,24 @@ warn: Microsoft.EntityFrameworkCore.Query[20504]
       Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (1ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
-      SELECT "b0"."Id", "b0"."CreatedAt", "b0"."Description", "b0"."Title", "s"."Id", "s"."BoardId", "s"."Order", "s"."Title", "s"."Id0", "s"."Assignee", "s"."Description", "s"."DueDate", "s"."ListId", "s"."Order0", "s"."Priority", "s"."Title0"
+      SELECT "b1"."Id", "b1"."CreatedAt", "b1"."Description", "b1"."TeamId", "b1"."Title", "s"."Id", "s"."BoardId", "s"."Role", "s"."UserId", "s"."Id0", "s"."AvatarUrl", "s"."Email", "s"."TeamId", "s"."Username", "s0"."Id", "s0"."BoardId", "s0"."Order", "s0"."Title", "s0"."Id0", "s0"."Assignee", "s0"."Description", "s0"."DueDate", "s0"."ListId", "s0"."Order0", "s0"."Priority", "s0"."Title0"
       FROM (
-          SELECT "b"."Id", "b"."CreatedAt", "b"."Description", "b"."Title"
+          SELECT "b"."Id", "b"."CreatedAt", "b"."Description", "b"."TeamId", "b"."Title"
           FROM "Boards" AS "b"
           WHERE "b"."Id" = @id
           LIMIT 1
-      ) AS "b0"
+      ) AS "b1"
+      LEFT JOIN (
+          SELECT "b0"."Id", "b0"."BoardId", "b0"."Role", "b0"."UserId", "u"."Id" AS "Id0", "u"."AvatarUrl", "u"."Email", "u"."TeamId", "u"."Username"
+          FROM "BoardMembers" AS "b0"
+          INNER JOIN "Users" AS "u" ON "b0"."UserId" = "u"."Id"
+      ) AS "s" ON "b1"."Id" = "s"."BoardId"
       LEFT JOIN (
           SELECT "l"."Id", "l"."BoardId", "l"."Order", "l"."Title", "c"."Id" AS "Id0", "c"."Assignee", "c"."Description", "c"."DueDate", "c"."ListId", "c"."Order" AS "Order0", "c"."Priority", "c"."Title" AS "Title0"
           FROM "Lists" AS "l"
           LEFT JOIN "Cards" AS "c" ON "l"."Id" = "c"."ListId"
-      ) AS "s" ON "b0"."Id" = "s"."BoardId"
-      ORDER BY "b0"."Id", "s"."Order", "s"."Id", "s"."Order0"
-info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
-      SELECT "c"."Id", "c"."Assignee", "c"."Description", "c"."DueDate", "c"."ListId", "c"."Order", "c"."Priority", "c"."Title"
-      FROM "Cards" AS "c"
-      WHERE "c"."Id" = @p
-      LIMIT 1
-info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-      SELECT "b"."Id", "b"."CreatedAt", "b"."Description", "b"."Title"
-      FROM "Boards" AS "b"
-info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@boardId='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
-      SELECT "a"."Id", "a"."Action", "a"."BoardId", "a"."Timestamp", "a"."User"
-      FROM "ActivityLogs" AS "a"
-      WHERE "a"."BoardId" = @boardId
-      ORDER BY "a"."Timestamp" DESC
-      LIMIT @p
-info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (1ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
-      SELECT "b0"."Id", "b0"."CreatedAt", "b0"."Description", "b0"."Title", "s"."Id", "s"."BoardId", "s"."Order", "s"."Title", "s"."Id0", "s"."Assignee", "s"."Description", "s"."DueDate", "s"."ListId", "s"."Order0", "s"."Priority", "s"."Title0"
-      FROM (
-          SELECT "b"."Id", "b"."CreatedAt", "b"."Description", "b"."Title"
-          FROM "Boards" AS "b"
-          WHERE "b"."Id" = @id
-          LIMIT 1
-      ) AS "b0"
-      LEFT JOIN (
-          SELECT "l"."Id", "l"."BoardId", "l"."Order", "l"."Title", "c"."Id" AS "Id0", "c"."Assignee", "c"."Description", "c"."DueDate", "c"."ListId", "c"."Order" AS "Order0", "c"."Priority", "c"."Title" AS "Title0"
-          FROM "Lists" AS "l"
-          LEFT JOIN "Cards" AS "c" ON "l"."Id" = "c"."ListId"
-      ) AS "s" ON "b0"."Id" = "s"."BoardId"
-      ORDER BY "b0"."Id", "s"."Order", "s"."Id", "s"."Order0"
+      ) AS "s0" ON "b1"."Id" = "s0"."BoardId"
+      ORDER BY "b1"."Id", "s"."Id", "s"."Id0", "s0"."Order", "s0"."Id", "s0"."Order0"
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (0ms) [Parameters=[@p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
       SELECT "c"."Id", "c"."Assignee", "c"."Description", "c"."DueDate", "c"."ListId", "c"."Order", "c"."Priority", "c"."Title"

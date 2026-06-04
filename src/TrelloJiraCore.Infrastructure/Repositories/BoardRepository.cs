@@ -14,8 +14,10 @@ public class BoardRepository : Repository<Board>, IBoardRepository
     public async Task<Board?> GetBoardWithDetailsAsync(int id)
     {
         return await _context.Boards
+            .Include(b => b.Members)
+                .ThenInclude(m => m.User)
             .Include(b => b.Lists.OrderBy(l => l.Order))
-            .ThenInclude(l => l.Cards.OrderBy(c => c.Order))
+                .ThenInclude(l => l.Cards.OrderBy(c => c.Order))
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 

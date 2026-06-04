@@ -71,10 +71,28 @@ using (var scope = app.Services.CreateScope())
     context.Database.EnsureCreated();
     if (!context.Boards.Any())
     {
-        var board1 = new TrelloJiraCore.Core.Entities.Board { Title = "توسعه زیرساخت بک‌آند", Description = "مدیریت سرویس‌های هسته و دیتابیس" };
+        var user1 = new TrelloJiraCore.Core.Entities.User { Username = "danial", Email = "danial@example.com", AvatarUrl = "https://i.pravatar.cc/150?u=danial" };
+        var user2 = new TrelloJiraCore.Core.Entities.User { Username = "ali", Email = "ali@example.com", AvatarUrl = "https://i.pravatar.cc/150?u=ali" };
+        var user3 = new TrelloJiraCore.Core.Entities.User { Username = "sara", Email = "sara@example.com", AvatarUrl = "https://i.pravatar.cc/150?u=sara" };
+        context.Users.AddRange(user1, user2, user3);
+        context.SaveChanges();
+
+        var team = new TrelloJiraCore.Core.Entities.Team { Name = "تیم توسعه هسته", Description = "مسئول توسعه سرویس‌های زیرساختی" };
+        team.Members.Add(user1);
+        team.Members.Add(user2);
+        context.Teams.Add(team);
+        context.SaveChanges();
+
+        var board1 = new TrelloJiraCore.Core.Entities.Board { Title = "توسعه زیرساخت بک‌آند", Description = "مدیریت سرویس‌های هسته و دیتابیس", TeamId = team.Id };
         var board2 = new TrelloJiraCore.Core.Entities.Board { Title = "کمپین بازاریابی تابستانه", Description = "برنامه‌ریزی و اجرای تبلیغات محیطی و دیجیتال" };
         context.Boards.AddRange(board1, board2);
         context.SaveChanges();
+
+        context.BoardMembers.AddRange(
+            new TrelloJiraCore.Core.Entities.BoardMember { BoardId = board1.Id, UserId = user1.Id, Role = TrelloJiraCore.Core.Entities.BoardRole.Owner },
+            new TrelloJiraCore.Core.Entities.BoardMember { BoardId = board1.Id, UserId = user2.Id, Role = TrelloJiraCore.Core.Entities.BoardRole.Member },
+            new TrelloJiraCore.Core.Entities.BoardMember { BoardId = board2.Id, UserId = user3.Id, Role = TrelloJiraCore.Core.Entities.BoardRole.Owner }
+        );
 
         var lists1 = new[] {
             new TrelloJiraCore.Core.Entities.List { Title = "ایده‌ها", BoardId = board1.Id, Order = 1 },
@@ -87,10 +105,10 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
 
         context.Cards.AddRange(
-            new TrelloJiraCore.Core.Entities.Card { Title = "پیاده‌سازی JWT", Description = "سیستم احراز هویت مبتنی بر توکن", ListId = lists1[2].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Urgent, Assignee = "دانیال", Order = 1 },
-            new TrelloJiraCore.Core.Entities.Card { Title = "بهینه‌سازی کوئری‌ها", Description = "افزایش سرعت لود بوردهای سنگین", ListId = lists1[0].Id, Priority = TrelloJiraCore.Core.Enums.Priority.High, Assignee = "علی", Order = 1 },
-            new TrelloJiraCore.Core.Entities.Card { Title = "مستندات Swagger", Description = "بروزرسانی توضیحات API", ListId = lists1[4].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Low, Assignee = "سارا", Order = 1 },
-            new TrelloJiraCore.Core.Entities.Card { Title = "هماهنگی با تیم موبایل", Description = "بررسی هاب SignalR برای اندروید", ListId = lists1[1].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Medium, Assignee = "رضا", Order = 1 }
+            new TrelloJiraCore.Core.Entities.Card { Title = "پیاده‌سازی JWT", Description = "سیستم احراز هویت مبتنی بر توکن", ListId = lists1[2].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Urgent, Assignee = "danial", Order = 1 },
+            new TrelloJiraCore.Core.Entities.Card { Title = "بهینه‌سازی کوئری‌ها", Description = "افزایش سرعت لود بوردهای سنگین", ListId = lists1[0].Id, Priority = TrelloJiraCore.Core.Enums.Priority.High, Assignee = "ali", Order = 1 },
+            new TrelloJiraCore.Core.Entities.Card { Title = "مستندات Swagger", Description = "بروزرسانی توضیحات API", ListId = lists1[4].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Low, Assignee = "sara", Order = 1 },
+            new TrelloJiraCore.Core.Entities.Card { Title = "هماهنگی با تیم موبایل", Description = "بررسی هاب SignalR برای اندروید", ListId = lists1[1].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Medium, Assignee = "ali", Order = 1 }
         );
 
         var lists2 = new[] {
