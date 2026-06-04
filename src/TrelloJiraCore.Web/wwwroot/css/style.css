@@ -1,24 +1,34 @@
-/* Simplified Tailwind-like utility classes */
+@font-face {
+  font-family: 'Vazir';
+  src: url('../fonts/Vazir-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
-  --bg-color: #f3f4f6;
-  --text-color: #1f2937;
+  --bg-color: #f8fafc;
+  --text-color: #0f172a;
   --card-bg: #ffffff;
   --header-bg: #ffffff;
-  --border-color: #e5e7eb;
+  --border-color: #e2e8f0;
+  --sidebar-bg: #ffffff;
+  --primary-color: #2563eb;
 }
 
 [data-theme='dark'] {
-  --bg-color: #111827;
-  --text-color: #f9fafb;
-  --card-bg: #1f2937;
-  --header-bg: #1f2937;
-  --border-color: #374151;
+  --bg-color: #020617;
+  --text-color: #f1f5f9;
+  --card-bg: #0f172a;
+  --header-bg: #0f172a;
+  --border-color: #1e293b;
+  --sidebar-bg: #0f172a;
+  --primary-color: #3b82f6;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Vazir', sans-serif;
   transition: background-color 0.3s, color 0.3s;
   direction: rtl;
 }
@@ -26,61 +36,108 @@ body {
 .kanban-board {
   display: flex;
   overflow-x: auto;
-  padding: 1rem;
-  gap: 1rem;
-  min-height: calc(100vh - 100px);
+  padding: 1.5rem;
+  gap: 1.5rem;
+  align-items: flex-start;
+  height: calc(100vh - 140px);
 }
 
 .kanban-column {
-  background-color: #ebedf0;
-  border-radius: 0.5rem;
-  min-width: 300px;
-  max-width: 300px;
+  background-color: #f1f5f9;
+  border-radius: 1rem;
+  min-width: 340px;
+  max-width: 340px;
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  max-height: 100%;
 }
 
 [data-theme='dark'] .kanban-column {
-  background-color: #111827;
+  background-color: #1e293b;
   border: 1px solid var(--border-color);
 }
 
 .kanban-card {
   background-color: var(--card-bg);
-  border-radius: 0.25rem;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   cursor: grab;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
 }
 
-.kanban-card:active {
-  cursor: grabbing;
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
 }
 
-.priority-high { border-right: 4px solid #ef4444; }
-.priority-medium { border-right: 4px solid #f59e0b; }
-.priority-low { border-right: 4px solid #10b981; }
+.priority-urgent { border-right: 6px solid #ef4444; }
+.priority-high { border-right: 6px solid #f97316; }
+.priority-medium { border-right: 6px solid #f59e0b; }
+.priority-low { border-right: 6px solid #10b981; }
 
-header {
-  background-color: var(--header-bg);
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
 }
 
-button {
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  border: none;
-  background-color: #3b82f6;
+.modal-content {
+  background-color: var(--card-bg);
+  margin: 5% auto;
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  width: 600px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar {
+  width: 320px;
+  background-color: var(--sidebar-bg);
+  border-left: 1px solid var(--border-color);
+  height: calc(100vh - 65px);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
   color: white;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  display: flex;
+  items-center;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
-button:hover {
-  background-color: #2563eb;
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
 }

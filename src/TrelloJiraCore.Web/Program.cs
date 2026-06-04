@@ -71,24 +71,61 @@ using (var scope = app.Services.CreateScope())
     context.Database.EnsureCreated();
     if (!context.Boards.Any())
     {
-        var board = new TrelloJiraCore.Core.Entities.Board { Title = "پروژه توسعه TrelloJiraCore", Description = "مدیریت فرآیندهای توسعه سیستم" };
-        context.Boards.Add(board);
+        var user1 = new TrelloJiraCore.Core.Entities.User { Username = "danial", Email = "danial@example.com", AvatarUrl = "https://i.pravatar.cc/150?u=danial" };
+        var user2 = new TrelloJiraCore.Core.Entities.User { Username = "ali", Email = "ali@example.com", AvatarUrl = "https://i.pravatar.cc/150?u=ali" };
+        var user3 = new TrelloJiraCore.Core.Entities.User { Username = "sara", Email = "sara@example.com", AvatarUrl = "https://i.pravatar.cc/150?u=sara" };
+        context.Users.AddRange(user1, user2, user3);
         context.SaveChanges();
 
-        var list1 = new TrelloJiraCore.Core.Entities.List { Title = "برای انجام", BoardId = board.Id, Order = 1 };
-        var list2 = new TrelloJiraCore.Core.Entities.List { Title = "در حال انجام", BoardId = board.Id, Order = 2 };
-        var list3 = new TrelloJiraCore.Core.Entities.List { Title = "پایان یافته", BoardId = board.Id, Order = 3 };
-        context.Lists.AddRange(list1, list2, list3);
+        var team = new TrelloJiraCore.Core.Entities.Team { Name = "تیم توسعه هسته", Description = "مسئول توسعه سرویس‌های زیرساختی" };
+        team.Members.Add(user1);
+        team.Members.Add(user2);
+        context.Teams.Add(team);
         context.SaveChanges();
 
-        context.Cards.Add(new TrelloJiraCore.Core.Entities.Card
-        {
-            Title = "طراحی دیتابیس",
-            Description = "طراحی جداول اصلی سیستم",
-            ListId = list1.Id,
-            Priority = TrelloJiraCore.Core.Enums.Priority.High,
-            Assignee = "دانیال"
+        var board1 = new TrelloJiraCore.Core.Entities.Board { Title = "توسعه زیرساخت بک‌آند", Description = "مدیریت سرویس‌های هسته و دیتابیس", TeamId = team.Id };
+        var board2 = new TrelloJiraCore.Core.Entities.Board { Title = "کمپین بازاریابی تابستانه", Description = "برنامه‌ریزی و اجرای تبلیغات محیطی و دیجیتال" };
+        context.Boards.AddRange(board1, board2);
+        context.SaveChanges();
+
+        context.BoardMembers.AddRange(
+            new TrelloJiraCore.Core.Entities.BoardMember { BoardId = board1.Id, UserId = user1.Id, Role = TrelloJiraCore.Core.Entities.BoardRole.Owner },
+            new TrelloJiraCore.Core.Entities.BoardMember { BoardId = board1.Id, UserId = user2.Id, Role = TrelloJiraCore.Core.Entities.BoardRole.Member },
+            new TrelloJiraCore.Core.Entities.BoardMember { BoardId = board2.Id, UserId = user3.Id, Role = TrelloJiraCore.Core.Entities.BoardRole.Owner }
+        );
+
+        var lists1 = new[] {
+            new TrelloJiraCore.Core.Entities.List { Title = "ایده‌ها", BoardId = board1.Id, Order = 1 },
+            new TrelloJiraCore.Core.Entities.List { Title = "تایید فنی", BoardId = board1.Id, Order = 2 },
+            new TrelloJiraCore.Core.Entities.List { Title = "در حال کدنویسی", BoardId = board1.Id, Order = 3 },
+            new TrelloJiraCore.Core.Entities.List { Title = "تست نهایی", BoardId = board1.Id, Order = 4 },
+            new TrelloJiraCore.Core.Entities.List { Title = "اتمام", BoardId = board1.Id, Order = 5 }
+        };
+        context.Lists.AddRange(lists1);
+        context.SaveChanges();
+
+        context.Cards.AddRange(
+            new TrelloJiraCore.Core.Entities.Card { Title = "پیاده‌سازی JWT", Description = "سیستم احراز هویت مبتنی بر توکن", ListId = lists1[2].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Urgent, Assignee = "danial", Order = 1 },
+            new TrelloJiraCore.Core.Entities.Card { Title = "بهینه‌سازی کوئری‌ها", Description = "افزایش سرعت لود بوردهای سنگین", ListId = lists1[0].Id, Priority = TrelloJiraCore.Core.Enums.Priority.High, Assignee = "ali", Order = 1 },
+            new TrelloJiraCore.Core.Entities.Card { Title = "مستندات Swagger", Description = "بروزرسانی توضیحات API", ListId = lists1[4].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Low, Assignee = "sara", Order = 1 },
+            new TrelloJiraCore.Core.Entities.Card { Title = "هماهنگی با تیم موبایل", Description = "بررسی هاب SignalR برای اندروید", ListId = lists1[1].Id, Priority = TrelloJiraCore.Core.Enums.Priority.Medium, Assignee = "ali", Order = 1 }
+        );
+
+        var lists2 = new[] {
+            new TrelloJiraCore.Core.Entities.List { Title = "در انتظار", BoardId = board2.Id, Order = 1 },
+            new TrelloJiraCore.Core.Entities.List { Title = "اجرا", BoardId = board2.Id, Order = 2 },
+            new TrelloJiraCore.Core.Entities.List { Title = "بایگانی", BoardId = board2.Id, Order = 3 }
+        };
+        context.Lists.AddRange(lists2);
+        context.SaveChanges();
+
+        context.ActivityLogs.Add(new TrelloJiraCore.Core.Entities.ActivityLog {
+            User = "سیستم",
+            Action = "دیتابیس با موفقیت مقداردهی اولیه شد",
+            BoardId = board1.Id,
+            Timestamp = DateTime.UtcNow
         });
+
         context.SaveChanges();
     }
 }
