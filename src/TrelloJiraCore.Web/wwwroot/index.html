@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrelloJiraCore - مدیریت پروژه هوشمند</title>
+    <link rel="stylesheet" href="lib/tailwind.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1 style="font-size: 1.5rem; font-weight: bold;">TrelloJiraCore</h1>
+        </div>
+        <div class="actions">
+            <button id="theme-toggle">تغییر تم</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="board-header" style="padding: 1rem;">
+            <h2 id="board-title">در حال بارگذاری بورد...</h2>
+            <p id="board-description"></p>
+        </div>
+        <div id="kanban-board" class="kanban-board">
+            <!-- ستون‌ها به صورت داینامیک اینجا اضافه می‌شوند -->
+        </div>
+    </main>
+
+    <div id="notification-area" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;"></div>
+
+    <script src="lib/signalr.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

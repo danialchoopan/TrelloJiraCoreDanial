@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TrelloJiraCore.Core/TrelloJiraCore.Core.csproj" />
+    <Project Path="src/TrelloJiraCore.Infrastructure/TrelloJiraCore.Infrastructure.csproj" />
+    <Project Path="src/TrelloJiraCore.Web/TrelloJiraCore.Web.csproj" />
+  </Folder>
+</Solution>

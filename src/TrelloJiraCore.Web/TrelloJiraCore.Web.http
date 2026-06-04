@@ -1,0 +1,6 @@
+@TrelloJiraCore.Web_HostAddress = http://localhost:5008
+
+GET {{TrelloJiraCore.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
