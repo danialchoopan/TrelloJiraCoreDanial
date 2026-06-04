@@ -22,8 +22,7 @@ TrelloJiraCore یک پلتفرم قدرتمند برای مدیریت پروژه
 ![نمای بورد کانبان در تم روشن](./screenshots/board_light.png)
 
 ## جزئیات کارت و تاریخچه
-![جزئیات کارت](./screenshots/card_detail_dark.png)
-![تاریخچه فعالیت‌ها](./screenshots/activity_log.png)
+![جزئیات کارت](./screenshots/card_detail_light.png)
 
 ## پیش‌نیازها
 - .NET 10 SDK
