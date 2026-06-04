@@ -18,9 +18,12 @@ public class BoardsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Board>>> GetBoards()
+    public async Task<ActionResult<IEnumerable<Board>>> GetBoards([FromQuery] string? search)
     {
-        return Ok(await _boardRepository.GetAllAsync());
+        if (string.IsNullOrEmpty(search))
+            return Ok(await _boardRepository.GetAllAsync());
+
+        return Ok(await _boardRepository.SearchBoardsAsync(search));
     }
 
     [HttpGet("{id}")]

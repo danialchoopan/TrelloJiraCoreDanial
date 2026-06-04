@@ -15,12 +15,15 @@ public interface IRepository<T> where T : class
 public interface IBoardRepository : IRepository<Board>
 {
     Task<Board?> GetBoardWithDetailsAsync(int id);
+    Task<IEnumerable<Board>> SearchBoardsAsync(string query);
 }
 
 public interface ICardRepository : IRepository<Card>
 {
+    Task<IEnumerable<Card>> SearchCardsAsync(int boardId, string query);
 }
 
 public interface IActivityLogRepository : IRepository<ActivityLog>
 {
+    Task<IEnumerable<ActivityLog>> GetByBoardIdAsync(int boardId);
 }

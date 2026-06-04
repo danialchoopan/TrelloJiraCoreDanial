@@ -18,4 +18,11 @@ public class BoardRepository : Repository<Board>, IBoardRepository
             .ThenInclude(l => l.Cards.OrderBy(c => c.Order))
             .FirstOrDefaultAsync(b => b.Id == id);
     }
+
+    public async Task<IEnumerable<Board>> SearchBoardsAsync(string query)
+    {
+        return await _context.Boards
+            .Where(b => b.Title.Contains(query) || b.Description.Contains(query))
+            .ToListAsync();
+    }
 }

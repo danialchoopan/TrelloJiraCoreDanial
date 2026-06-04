@@ -58,4 +58,44 @@ public class CardsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Card>> GetCard(int id)
+    {
+        var card = await _cardRepository.GetByIdAsync(id);
+        if (card == null) return NotFound();
+        return Ok(card);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCard(int id, CardUpdateDto updateDto)
+    {
+        var card = await _cardRepository.GetByIdAsync(id);
+        if (card == null) return NotFound();
+
+        card.Title = updateDto.Title;
+        card.Description = updateDto.Description;
+        card.DueDate = updateDto.DueDate;
+        card.Priority = updateDto.Priority;
+        card.Assignee = updateDto.Assignee;
+
+        _cardRepository.Update(card);
+
+        var list = await _listRepository.GetByIdAsync(card.ListId);
+        await _activityLogRepository.AddAsync(new ActivityLog
+        {
+            Action = $"کارت '{card.Title}' ویرایش شد",
+            User = "کاربر سیستم",
+            BoardId = list?.BoardId
+        });
+
+        await _cardRepository.SaveChangesAsync();
+
+        if (list != null)
+        {
+            await _hubContext.Clients.Group($"Board_{list.BoardId}").SendAsync("OnCardUpdated", id);
+        }
+
+        return NoContent();
+    }
 }

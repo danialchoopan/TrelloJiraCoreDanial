@@ -35,8 +35,17 @@ dotnet run --project src/TrelloJiraCore.Web
 سیستم شامل یک بورد کانبان پیش‌فرض است. شما می‌توانید کارت‌ها را بین ستون‌ها جابه‌جا کنید (Drag & Drop). هر جابه‌جایی به صورت آنی به سایر اعضا اطلاع‌رسانی می‌شود.
 
 ## اسکرین‌شات‌های سیستم
+
+### نمای بوردها
+![لیست بوردها در تم روشن](./screenshots/boards_light.png)
+![لیست بوردها در تم تاریک](./screenshots/boards_dark.png)
+
+### نمای کانبان بورد
 ![نمای بورد کانبان در تم روشن](./screenshots/board_light.png)
 ![نمای بورد کانبان در تم تاریک](./screenshots/board_dark.png)
+
+### جزئیات کارت و تاریخچه
+![جزئیات کارت](./screenshots/card_detail_dark.png)
 ![تاریخچه فعالیت‌ها](./screenshots/activity_log.png)
 
 ## معماری پروژه
